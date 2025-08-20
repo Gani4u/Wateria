@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000","http://wateria-frontend.s3-website-us-east-1.amazonaws.com") // frontend origin
+                .allowedOrigins("http://localhost:3000","http://wateria-frontend.s3-website-us-east-1.amazonaws.com","https://wateria-frontend.s3-website-us-east-1.amazonaws.com") // frontend origin
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
