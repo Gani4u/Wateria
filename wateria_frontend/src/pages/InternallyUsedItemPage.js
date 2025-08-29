@@ -1,4 +1,3 @@
-// 📁 src/pages/ImportItemPage.js
 import React, { useEffect, useState } from "react";
 import {
   getAllUsedItems,
@@ -7,10 +6,10 @@ import {
   deleteUsedItem,
 } from "../api/InternallyUsedItemApi";
 import { getAllItems } from "../api/ItemApi";
-import InternallyUsedTable from "../components/InternallyUsedItem/InternallyUsedItemTable";
+import InternallyUsedItemTable from "../components/InternallyUsedItem/InternallyUsedItemTable";
 import InternallyUsedItemFormModal from "../components/InternallyUsedItem/InternallyUsedItemFormModal";
 import ConfirmDialog from "../components/Plant/ConfirmDialog";
-import { Button, Spinner, Form } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 
 const InternallyUsedItemPage = () => {
   const [usedItems, setUsedItems] = useState([]);
@@ -18,7 +17,6 @@ const InternallyUsedItemPage = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-//   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
@@ -32,7 +30,7 @@ const InternallyUsedItemPage = () => {
   const loadData = async () => {
     setLoading(true);
     const [itemData] = await Promise.all([
-      getAllItems(0, 100), // Fetch all for dropdown
+      getAllItems(0, 100), // Fetch all items for dropdown
     ]);
     setItems(itemData.content);
     loadUsedItems(0);
@@ -48,13 +46,6 @@ const InternallyUsedItemPage = () => {
     setHasMore(currentPage + 1 < data.totalPages);
     setLoading(false);
   };
-
-//   const handleSearch = (e) => {
-//     const term = e.target.value;
-//     setSearchTerm(term);
-//     setPage(0);
-//     loadUsedItems(0, term);
-//   };
 
   const handleAdd = () => {
     setSelectedItem(null);
@@ -90,31 +81,29 @@ const InternallyUsedItemPage = () => {
 
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Used Items</h2>
-        <Button variant="primary" onClick={handleAdd}>+ Add Used Item</Button>
+      {/* Header row */}
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h2 className="mb-2 mb-md-0">Used Items</h2>
+        <Button variant="primary" onClick={handleAdd}>
+          + Add Used Item
+        </Button>
       </div>
 
-      {/* <Form.Control
-        type="text"
-        placeholder="Search used items..."
-        value={searchTerm}
-        onChange={handleSearch}
-        className="mb-3"
-      /> */}
-
-      <InternallyUsedTable
+      {/* Table */}
+      <InternallyUsedItemTable
         usedItems={usedItems}
         onEdit={handleEdit}
         onDelete={(id) => setConfirmDelete({ open: true, id })}
       />
 
+      {/* Loading */}
       {loading && (
         <div className="text-center mt-3">
           <Spinner animation="border" variant="primary" />
         </div>
       )}
 
+      {/* Load more */}
       {!loading && hasMore && (
         <div className="text-center mt-3">
           <Button variant="outline-primary" onClick={handleLoadMore}>
@@ -123,6 +112,7 @@ const InternallyUsedItemPage = () => {
         </div>
       )}
 
+      {/* Form modal */}
       <InternallyUsedItemFormModal
         show={openModal}
         onHide={() => setOpenModal(false)}
@@ -131,6 +121,7 @@ const InternallyUsedItemPage = () => {
         allItems={items}
       />
 
+      {/* Confirm delete */}
       <ConfirmDialog
         open={confirmDelete.open}
         onConfirm={handleDelete}

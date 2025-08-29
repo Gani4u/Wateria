@@ -11,7 +11,7 @@ public class BulkOrderDTO {
     private String plantName;
     private Long customerId;
     private String customerName;
-    private String customerContact;
+    private String contactNumber;
     private int cansGiven;
     private int cansPending;
     private double totalAmount;

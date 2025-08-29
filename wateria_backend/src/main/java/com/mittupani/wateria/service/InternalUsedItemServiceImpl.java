@@ -28,6 +28,7 @@ public class InternalUsedItemServiceImpl implements InternalUsedItemService {
 
         if (item.getItem() != null) {
             dto.setItemId(item.getItem().getId());
+            dto.setName(item.getItem().getName());
         } else {
             System.out.println("InternalUsedItem ID {} has no linked Item!"+item.getId());
             dto.setItemId(null);

@@ -1,9 +1,34 @@
-import { Link } from "react-router-dom";
-import "./Dashboard.css"; // Optional custom styling
+import { Link, useNavigate } from "react-router-dom";
+import "./Dashboard.css";
+import apiClient from "../api/axios";
 
 function Dashboard() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await apiClient.post("/api/auth/logout", {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+    } catch (err) {
+      console.error("Logout error", err);
+    } finally {
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  };
   return (
     <div className="dashboard-container">
+      {/* Logout in top-right */}
+      <div style={{ textAlign: "right" }}>
+        <button onClick={handleLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
+
       <h1>Wateria Dashboard</h1>
 
       <div className="card-grid">
@@ -11,17 +36,14 @@ function Dashboard() {
           <h2>🌿 Manage Plants</h2>
           <p>View and manage plant details</p>
         </Link>
-
         <Link to="/items" className="dashboard-card">
           <h2>🧴 Manage Items</h2>
           <p>View and manage item details</p>
         </Link>
-
         <Link to="/customers" className="dashboard-card">
           <h2>👤 Manage Customers</h2>
           <p>View and manage customer details</p>
         </Link>
-
         <Link to="/bulk-orders" className="dashboard-card">
           <h2>📦 Manage Bulk Orders</h2>
           <p>Track and manage bulk orders</p>
@@ -38,7 +60,7 @@ function Dashboard() {
           <h2>👷 Manage Your Suppliers</h2>
           <p>Track and manage your Suppliers</p>
         </Link>
-         <Link to="/export-item" className="dashboard-card">
+        <Link to="/export-item" className="dashboard-card">
           <h2>📤 Manage Your Outward</h2>
           <p>Track and manage your Outward</p>
         </Link>

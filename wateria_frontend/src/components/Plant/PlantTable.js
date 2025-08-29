@@ -6,7 +6,6 @@ const PlantTable = ({ plants, onEdit, onDelete }) => {
       <table className="table table-bordered table-hover">
         <thead className="table-light">
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Location</th>
             <th>Actions</th>
@@ -15,7 +14,6 @@ const PlantTable = ({ plants, onEdit, onDelete }) => {
         <tbody>
           {plants.map((plant) => (
             <tr key={plant.id}>
-              <td>{plant.id}</td>
               <td>{plant.name}</td>
               <td>{plant.location}</td>
               <td>

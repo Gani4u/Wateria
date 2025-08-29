@@ -20,7 +20,6 @@ const DailyOrderTable = ({ orders, onEdit, onDelete, onAddUp }) => {
         <Table striped bordered hover className="align-middle">
           <thead className="table-light">
             <tr>
-              <th>ID</th>
               <th>Customer</th>
               <th>Plant</th>
               <th>Cans Given</th>
@@ -38,7 +37,6 @@ const DailyOrderTable = ({ orders, onEdit, onDelete, onAddUp }) => {
           <tbody>
             {orders.map((order) => (
               <tr key={order.id}>
-                <td>{order.id}</td>
                 <td>
                   <strong>{order.customerName || "-"}</strong>
                   <div className="text-muted small">{order.customerContact}</div>
@@ -80,9 +78,8 @@ const DailyOrderTable = ({ orders, onEdit, onDelete, onAddUp }) => {
           <div key={order.id} className="card mb-3">
             <div className="card-body">
               <h6 className="card-title">
-                #{order.id} — {order.customerName || "-"}
+                {order.customerName} - {order.customerContact}
               </h6>
-              <p className="mb-1 text-muted small">{order.customerContact}</p>
 
               <div><strong>Plant:</strong> {order.plantName}</div>
               <div><strong>Cans Given:</strong> {order.cansGiven}</div>

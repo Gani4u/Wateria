@@ -34,7 +34,7 @@ const ExportItemPage = () => {
     if (currentPage === 0) {
       setExportItems(data.content);
     } else {
-      setExportItems(prev => [...prev, ...data.content]);
+      setExportItems((prev) => [...prev, ...data.content]);
     }
     setHasMore(currentPage + 1 < data.totalPages);
     setLoading(false);
@@ -81,23 +81,29 @@ const ExportItemPage = () => {
 
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Export Item Management</h2>
-        <Button variant="primary" onClick={handleAdd}>+ Add Export Item</Button>
+      {/* Header row */}
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h2 className="mb-2 mb-md-0">Outward Item Management</h2>
+        <Button variant="primary" onClick={handleAdd}>
+          + Add Outward Item
+        </Button>
       </div>
 
+      {/* Responsive table */}
       <ExportItemTable
         exportItems={exportItems}
         onEdit={handleEdit}
         onDelete={(id) => setConfirmDelete({ open: true, id })}
       />
 
+      {/* Loading spinner */}
       {loading && (
         <div className="text-center mt-3">
           <Spinner animation="border" variant="primary" />
         </div>
       )}
 
+      {/* Load more */}
       {!loading && hasMore && (
         <div className="text-center mt-3">
           <Button variant="outline-primary" onClick={handleLoadMore}>
@@ -106,6 +112,7 @@ const ExportItemPage = () => {
         </div>
       )}
 
+      {/* Modals */}
       <ExportItemFormModal
         show={openModal}
         onHide={() => setOpenModal(false)}
@@ -118,7 +125,7 @@ const ExportItemPage = () => {
         open={confirmDelete.open}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete({ open: false, id: null })}
-        message="Are you sure you want to delete this export item?"
+        message="Are you sure you want to delete this outward item?"
       />
     </div>
   );

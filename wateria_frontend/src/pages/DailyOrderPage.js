@@ -136,7 +136,7 @@ const DailyOrderPage = () => {
             <Form.Select
               value={statusFilter}
               onChange={handleStatusFilterChange}
-              className="w-25"
+              className="w-50"
             >
               <option value="">All Status</option>
               <option value="PENDING">Pending</option>

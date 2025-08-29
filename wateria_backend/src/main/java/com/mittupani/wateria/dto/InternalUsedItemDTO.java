@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class InternalUsedItemDTO {
     private Long id;
     private Long itemId;
+    private String name;
     private int quantityUsed;
     private double pricePerItem;
     private String note;

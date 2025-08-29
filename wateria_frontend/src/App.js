@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/DashBoard";
 import PlantPage from "./pages/PlantPage";
 import ItemPage from "./pages/ItemPage";
@@ -10,21 +10,30 @@ import ImportItemPage from "./pages/ImportItemPage";
 import SupplierPage from "./pages/SupplierPage";
 import ExportItemPage from "./pages/ExportItemPage";
 import InternallyUsedItemPage from "./pages/InternallyUsedItemPage";
+import Login from "./components/Login";
+
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" />;
+}
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/plants" element={<PlantPage />} />
-        <Route path="/items" element={<ItemPage />} />
-        <Route path="/customers" element={<CustomerPage />} />
-        <Route path="/bulk-orders" element={<BulkOrderPage />} />
-        <Route path="/daily-orders" element={<DailyOrderPage />} />
-        <Route path="/import-item" element={<ImportItemPage/>}/>
-        <Route path="/supplier" element={<SupplierPage/>} />
-        <Route path="/export-item" element={<ExportItemPage/>}/>
-        <Route path="/internal-used" element={<InternallyUsedItemPage/>} />
+        <Route path="/login" element={<Login />} />
+        
+        {/* Protected routes */}
+        <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/plants" element={<PrivateRoute><PlantPage /></PrivateRoute>} />
+        <Route path="/items" element={<PrivateRoute><ItemPage /></PrivateRoute>} />
+        <Route path="/customers" element={<PrivateRoute><CustomerPage /></PrivateRoute>} />
+        <Route path="/bulk-orders" element={<PrivateRoute><BulkOrderPage /></PrivateRoute>} />
+        <Route path="/daily-orders" element={<PrivateRoute><DailyOrderPage /></PrivateRoute>} />
+        <Route path="/import-item" element={<PrivateRoute><ImportItemPage /></PrivateRoute>} />
+        <Route path="/supplier" element={<PrivateRoute><SupplierPage /></PrivateRoute>} />
+        <Route path="/export-item" element={<PrivateRoute><ExportItemPage /></PrivateRoute>} />
+        <Route path="/internal-used" element={<PrivateRoute><InternallyUsedItemPage /></PrivateRoute>} />
       </Routes>
     </Router>
   );

@@ -28,12 +28,15 @@ public class BulkOrderServiceImpl implements BulkOrderService {
         dto.setPlantId(order.getPlant().getId());
         dto.setPlantName(order.getPlant().getName());
         if (order.getCustomer() != null) {
+            // Use the customer entity data
             dto.setCustomerId(order.getCustomer().getId());
             dto.setCustomerName(order.getCustomer().getName());
-            dto.setCustomerContact(order.getCustomer().getContactNumber());
+            dto.setContactNumber(order.getCustomer().getContactNumber());
         } else {
+            // Use the fallback fields directly from BulkOrder table
+            dto.setCustomerId(null);
             dto.setCustomerName(order.getCustomerName());
-            dto.setCustomerContact(order.getContactNumber());
+            dto.setContactNumber(order.getContactNumber());
         }
         dto.setCansGiven(order.getCansGiven());
         dto.setCansPending(dto.getCansPending());
@@ -63,7 +66,7 @@ public class BulkOrderServiceImpl implements BulkOrderService {
         } else {
             order.setCustomer(null);
             order.setCustomerName(dto.getCustomerName());
-            order.setContactNumber(dto.getCustomerContact());
+            order.setContactNumber(dto.getContactNumber());
         }
 
         order.setId(dto.getId());
@@ -145,7 +148,10 @@ public class BulkOrderServiceImpl implements BulkOrderService {
         if (dto.getCustomerId() == null) {
             existing.setCustomer(null);
             existing.setCustomerName(dto.getCustomerName());
-            existing.setContactNumber(dto.getCustomerContact());
+            existing.setContactNumber(dto.getContactNumber());
+        }else{
+            existing.setCustomerName(dto.getCustomerName());
+            existing.setContactNumber(dto.getContactNumber());
         }
 
         existing.setCreatedAt(dto.getCreatedAt());

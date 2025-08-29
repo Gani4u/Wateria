@@ -22,7 +22,6 @@ const BulkOrderTable = ({ orders, onEdit, onDelete }) => {
         <Table striped bordered hover className="align-middle">
           <thead className="table-light">
             <tr>
-              <th>ID</th>
               <th>Customer</th>
               <th>Plant</th>
               <th>Cans Given</th>
@@ -40,7 +39,6 @@ const BulkOrderTable = ({ orders, onEdit, onDelete }) => {
           <tbody>
             {orders.map((order) => (
               <tr key={order.id}>
-                <td>{order.id}</td>
                 <td>
                   <strong>{order.customerName}</strong>
                   <div className="text-muted small">{order.contactNumber}</div>
@@ -79,9 +77,8 @@ const BulkOrderTable = ({ orders, onEdit, onDelete }) => {
           <div key={order.id} className="card mb-3">
             <div className="card-body">
               <h6 className="card-title">
-                #{order.id} — {order.customerName}
+                {order.customerName} - {order.contactNumber}
               </h6>
-              <p className="mb-1 text-muted small">{order.contactNumber}</p>
               <div><strong>Plant:</strong>{order.plantName}</div>
               <div><strong>Cans Given:</strong> {order.cansGiven}</div>
               <div><strong>Cans Returned:</strong> {order.cansReturned}</div>

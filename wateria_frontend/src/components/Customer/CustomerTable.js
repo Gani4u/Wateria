@@ -5,20 +5,16 @@ const CustomerTable = ({ customers, onEdit, onDelete }) => {
     <Table striped bordered hover>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Name</th>
           <th>Contact Number</th>
-          <th>Created At</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {customers.map((customer) => (
           <tr key={customer.id}>
-            <td>{customer.id}</td>
             <td>{customer.name}</td>
             <td>{customer.contactNumber}</td>
-            <td>{customer.createdAt?.split("T")[0]}</td>
             <td>
               <Button
                 variant="warning"

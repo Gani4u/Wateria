@@ -7,7 +7,6 @@ const ItemTable = ({ items, onEdit, onDelete }) => {
     <Table striped bordered hover>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Name</th>
           <th>Quantity</th>
           <th>Actions</th>
@@ -16,7 +15,6 @@ const ItemTable = ({ items, onEdit, onDelete }) => {
       <tbody>
         {items.map((item) => (
           <tr key={item.id}>
-            <td>{item.id}</td>
             <td>{item.name}</td>
             <td>{item.unit}</td>
             <td>

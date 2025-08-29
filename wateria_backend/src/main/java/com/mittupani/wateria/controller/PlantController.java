@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/plants")
 @RequiredArgsConstructor
+
 public class PlantController {
 
     private final PlantService plantService;

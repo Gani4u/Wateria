@@ -110,19 +110,20 @@ public class ItemServiceImpl implements ItemService {
     public ItemStockSummaryDTO getItemStockSummary() {
         Object[] row = itemRepository.getItemStockSummary();
         if (row == null) {
-            return new ItemStockSummaryDTO(0.0, 0.0);
+            return new ItemStockSummaryDTO(0.0, 0.0, 0.0);
         }
 
-        // If row is really [ [ value1, value2 ] ]
         if (row.length == 1 && row[0] instanceof Object[]) {
             row = (Object[]) row[0];
         }
 
         double totalActualCost = row[0] != null ? ((Number) row[0]).doubleValue() : 0.0;
         double totalSalesValue = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+        double inventoryValue  = row[2] != null ? ((Number) row[2]).doubleValue() : 0.0;
 
-        return new ItemStockSummaryDTO(totalActualCost, totalSalesValue);
+        return new ItemStockSummaryDTO(totalActualCost, totalSalesValue, inventoryValue);
     }
+
 
 
 }

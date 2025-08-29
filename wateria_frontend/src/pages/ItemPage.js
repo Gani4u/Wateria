@@ -110,7 +110,7 @@ const ItemPage = () => {
           + Add Item
         </Button>
       </div>
-      <Button variant="info" onClick={async () => {
+      <Button variant="info" className="mb-3 float-end" onClick={async () => {
         const data = await getItemStockSummary();
           setInsightData(data);
           setShowInsight(true);
@@ -175,6 +175,7 @@ const ItemPage = () => {
         <div className="modal-body">
           <p><strong>Total Actual Cost:</strong> ₹{insightData.totalActualCost.toFixed(2)}</p>
           <p><strong>Total Sales Value:</strong> ₹{insightData.totalSalesValue.toFixed(2)}</p>
+          <p><strong>Total Inventory Value:</strong> ₹{insightData.inventoryValue.toFixed(2)}</p>
         </div>
         <div className="modal-footer">
           <Button variant="secondary" onClick={() => setShowInsight(false)}>Close</Button>

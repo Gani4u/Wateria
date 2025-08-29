@@ -7,7 +7,6 @@ const SupplierTable = ({ suppliers, onEdit, onDelete }) => {
     <Table striped bordered hover>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Name</th>
           <th>Contact</th>
           <th>Actions</th>
@@ -16,7 +15,6 @@ const SupplierTable = ({ suppliers, onEdit, onDelete }) => {
       <tbody>
         {suppliers.map((supplier) => (
           <tr key={supplier.id}>
-            <td>{supplier.id}</td>
             <td>{supplier.name}</td>
             <td>{supplier.contact}</td>
             <td>

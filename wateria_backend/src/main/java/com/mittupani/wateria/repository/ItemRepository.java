@@ -46,19 +46,34 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query(value = """
     SELECT
       COALESCE(SUM(im.actual_cost), 0) AS totalActualCost,
-      COALESCE(SUM(ex.sales_value), 0) AS totalSalesValue
+      COALESCE(SUM(ex.sales_value), 0) AS totalSalesValue,
+      COALESCE(SUM(
+        (im.import_qty - COALESCE(ex.export_qty, 0) - COALESCE(u.used_qty, 0))
+        * (im.actual_cost / NULLIF(im.import_qty, 0))
+      ), 0) AS inventoryValue
     FROM item i
     LEFT JOIN (
-      SELECT item_id, SUM(quantity * price_per_item) AS actual_cost
+      SELECT item_id,
+             SUM(quantity) AS import_qty,
+             SUM(quantity * price_per_item) AS actual_cost
       FROM import_item
       GROUP BY item_id
     ) im ON i.id = im.item_id
     LEFT JOIN (
-      SELECT item_id, SUM(quantity * price_per_item) AS sales_value
+      SELECT item_id,
+             SUM(quantity) AS export_qty,
+             SUM(quantity * price_per_item) AS sales_value
       FROM export_item
       GROUP BY item_id
     ) ex ON i.id = ex.item_id
-""", nativeQuery = true)
+    LEFT JOIN (
+      SELECT item_id,
+             SUM(quantity_used) AS used_qty
+      FROM internal_used_item
+      GROUP BY item_id
+    ) u ON i.id = u.item_id
+    """, nativeQuery = true)
     Object[] getItemStockSummary();
+
 
 }

@@ -3,6 +3,19 @@
   text-align: center;
 }
 
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
 .card-grid {
   display: flex;
   gap: 1.5rem;

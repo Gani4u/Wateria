@@ -1,4 +1,3 @@
-// 📁 src/pages/ImportItemPage.js
 import React, { useEffect, useState } from "react";
 import {
   getAllImportItems,
@@ -94,31 +93,38 @@ const ImportItemPage = () => {
 
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Import Items</h2>
-        <Button variant="primary" onClick={handleAdd}>+ Add Import Item</Button>
+      {/* Header row */}
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h2 className="mb-2 mb-md-0">Inward Items</h2>
+        <Button variant="primary" onClick={handleAdd}>
+          + Add Inward Item
+        </Button>
       </div>
 
+      {/* Search bar */}
       <Form.Control
         type="text"
-        placeholder="Search import items..."
+        placeholder="Search inward items..."
         value={searchTerm}
         onChange={handleSearch}
         className="mb-3"
       />
 
+      {/* Responsive table */}
       <ImportItemTable
         importItems={importItems}
         onEdit={handleEdit}
         onDelete={(id) => setConfirmDelete({ open: true, id })}
       />
 
+      {/* Loading spinner */}
       {loading && (
         <div className="text-center mt-3">
           <Spinner animation="border" variant="primary" />
         </div>
       )}
 
+      {/* Load more button */}
       {!loading && hasMore && (
         <div className="text-center mt-3">
           <Button variant="outline-primary" onClick={handleLoadMore}>
@@ -127,6 +133,7 @@ const ImportItemPage = () => {
         </div>
       )}
 
+      {/* Modals */}
       <ImportItemFormModal
         show={openModal}
         onHide={() => setOpenModal(false)}
@@ -140,7 +147,7 @@ const ImportItemPage = () => {
         open={confirmDelete.open}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete({ open: false, id: null })}
-        message="Are you sure you want to delete this import item?"
+        message="Are you sure you want to delete this inward item?"
       />
     </div>
   );

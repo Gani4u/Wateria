@@ -10,10 +10,9 @@ const ItemStockReportTable = ({ report }) => {
       <Table striped bordered hover>
         <thead className="table-light">
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Total Imported</th>
-            <th>Total Exported</th>
+            <th>Item Name</th>
+            <th>Total Inwards</th>
+            <th>Total Outward</th>
             <th>Total Used</th>
             <th>In Stock</th>
             <th>Actual Cost</th>
@@ -24,7 +23,6 @@ const ItemStockReportTable = ({ report }) => {
           {report.length > 0 ? (
             report.map((row) => (
               <tr key={row.id}>
-                <td>{row.itemId}</td>
                 <td>{row.itemName}</td>
                 <td>{row.totalImported}</td>
                 <td>{row.totalSold}</td>
