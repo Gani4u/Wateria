@@ -20,9 +20,13 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if(!error.response){
+      window.location.href = '/server-down';
+    }
+    else if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem("token");
-      window.location.href = "/login"; // force re-login
+      localStorage.setItem("sessionExpired", "true");
+      window.location.href = "/session-expired";
     }
     return Promise.reject(error);
   }

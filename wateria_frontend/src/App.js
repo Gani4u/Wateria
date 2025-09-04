@@ -11,6 +11,8 @@ import SupplierPage from "./pages/SupplierPage";
 import ExportItemPage from "./pages/ExportItemPage";
 import InternallyUsedItemPage from "./pages/InternallyUsedItemPage";
 import Login from "./components/Login";
+import SessionExpiredModal from "./context/SessionExpiredModal";
+import ServerDown from "./context/ServerDown";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -34,6 +36,8 @@ function App() {
         <Route path="/supplier" element={<PrivateRoute><SupplierPage /></PrivateRoute>} />
         <Route path="/export-item" element={<PrivateRoute><ExportItemPage /></PrivateRoute>} />
         <Route path="/internal-used" element={<PrivateRoute><InternallyUsedItemPage /></PrivateRoute>} />
+        <Route path="/session-expired" element={<SessionExpiredModal/>}/>
+        <Route path="/server-down" element={<ServerDown />} />
       </Routes>
     </Router>
   );

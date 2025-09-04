@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import "./Login.css";
 
-
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,9 +14,8 @@ function Login() {
       const response = await apiClient.post("/api/auth/login", { username, password });
       
       if (response.data.token) {
-        // store JWT token instead of btoa(username:password)
         localStorage.setItem("token", response.data.token);
-        navigate("/"); // redirect to Dashboard
+        navigate("/");
       } else {
         alert("Invalid credentials");
       }
@@ -29,20 +27,25 @@ function Login() {
   return (
     <div className="login-container">
       <form onSubmit={handleLogin} className="login-form">
-        <h2>Login</h2>
+        {/* 💤 Gif on top right corner */}
+        <img src="/peach.gif" alt="Sleeping Cat" className="sleeping-gif" />
+
+        <h2>Hii...Buddy</h2>
         <input
           type="text"
-          placeholder="Username"
+          placeholder="What's your Username😃"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Here Password Please🙈🙈"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        <button type="submit">Login</button>
+        <button type="submit">Hit on me✨</button>
       </form>
     </div>
   );

@@ -52,3 +52,17 @@
 .login-form button:hover {
   background: #574bff;
 }
+
+/* Gif Styling */
+.login-form {
+  position: relative; /* required so gif is positioned inside */
+}
+
+.sleeping-gif {
+  position: absolute;
+  top: -90px;   /* adjust vertical placement */
+  right: -20px; /* adjust horizontal placement */
+  width: 120px;  /* gif size */
+  height: auto;
+  pointer-events: none; /* prevents blocking input clicks */
+}
