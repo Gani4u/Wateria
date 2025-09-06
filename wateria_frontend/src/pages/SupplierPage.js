@@ -1,4 +1,4 @@
-// 📁 src/pages/ItemPage.js
+// 📁 src/pages/SupplierPage.js
 import React, { useEffect, useState } from "react";
 import SupplierTable from "../components/Supplier/SupplierTable";
 import SupplierFormModal from "../components/Supplier/SupplierFormModal";
@@ -9,82 +9,94 @@ import {
   updateSupplier,
   deleteSupplier,
 } from "../api/SupplierApi";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form, Spinner, Alert } from "react-bootstrap";
 
 const SupplierPage = () => {
-  const [suppliers, setSupplier] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState(null);
+
   const [openModal, setOpenModal] = useState(false);
-  const [selectedSupplie, setSelectedSupplie] = useState(null);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
 
   const PAGE_SIZE = 10;
 
   useEffect(() => {
-    loadSupplie(0);
+    loadSuppliers(0);
   }, []);
 
-  const loadSupplie = async (currentPage, query = "") => {
+  const loadSuppliers = async (currentPage, query = "") => {
     setLoading(true);
-    const data = await getAllSuppliers(currentPage, PAGE_SIZE, "id", query);
-    if (currentPage === 0) {
-      setSupplier(data.content);
-    } else {
-      setSupplier((prev) => [...prev, ...data.content]);
+    try {
+      const data = await getAllSuppliers(currentPage, PAGE_SIZE, "id", query);
+      if (currentPage === 0) {
+        setSuppliers(data.content);
+      } else {
+        setSuppliers((prev) => [...prev, ...data.content]);
+      }
+      setHasMore(currentPage + 1 < data.totalPages);
+    } catch {
+      setError("Failed to load suppliers.");
+    } finally {
+      setLoading(false);
     }
-    setHasMore(currentPage + 1 < data.totalPages);
-    setLoading(false);
   };
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
     setPage(0);
-    loadSupplie(0, term);
+    loadSuppliers(0, term);
   };
 
   const handleAdd = () => {
-    setSelectedSupplie(null);
+    setSelectedSupplier(null);
     setOpenModal(true);
   };
 
-  const handleEdit = (item) => {
-    setSelectedSupplie(item);
+  const handleEdit = (supplier) => {
+    setSelectedSupplier(supplier);
     setOpenModal(true);
   };
 
   const handleDelete = async () => {
-  try {
-    await deleteSupplier(confirmDelete.id);
-    setConfirmDelete({ open: false, id: null });
-    loadSupplie(0, searchTerm);
-    setPage(0);
-  } catch (error) {
-    alert(
-      error.response?.data || "Error deleting supplier. They might be linked to import items."
-    );
-    setConfirmDelete({ open: false, id: null });
-  }
-};
+    try {
+      await deleteSupplier(confirmDelete.id);
+      setConfirmDelete({ open: false, id: null });
+      loadSuppliers(0, searchTerm);
+      setPage(0);
+    } catch (error) {
+      setError(
+        error.response?.data?.message ||
+          "Error deleting supplier. They might be linked to items."
+      );
+      setConfirmDelete({ open: false, id: null });
+    }
+  };
 
   const handleSubmit = async (formData) => {
-    if (formData.id) {
-      await updateSupplier(formData.id, formData);
-    } else {
-      await createSupplier(formData);
+    try {
+      if (formData.id) {
+        await updateSupplier(formData.id, formData);
+      } else {
+        await createSupplier(formData);
+      }
+      setOpenModal(false);
+      loadSuppliers(0, searchTerm);
+      setPage(0);
+    } catch {
+      setError("Error saving supplier.");
     }
-    setOpenModal(false);
-    loadSupplie(0, searchTerm);
-    setPage(0);
   };
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    loadSupplie(nextPage, searchTerm);
+    loadSuppliers(nextPage, searchTerm);
   };
 
   return (
@@ -92,9 +104,15 @@ const SupplierPage = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Supplier Management</h2>
         <Button variant="primary" onClick={handleAdd}>
-          + Add Suppliee
+          + Add Supplier
         </Button>
       </div>
+
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       <Form.Control
         type="text"
@@ -128,14 +146,14 @@ const SupplierPage = () => {
         show={openModal}
         onHide={() => setOpenModal(false)}
         onSubmit={handleSubmit}
-        supplier={selectedSupplie}
+        supplier={selectedSupplier}
       />
 
       <ConfirmDialog
         open={confirmDelete.open}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete({ open: false, id: null })}
-        message="Are you sure you want to delete this suppplier?"
+        message="Are you sure you want to delete this supplier?"
       />
     </div>
   );

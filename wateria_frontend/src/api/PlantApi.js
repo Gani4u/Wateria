@@ -21,6 +21,15 @@ export const updatePlant = async (id, plant) => {
 };
 
 export const deletePlant = async (id) => {
-  const response = await axios.delete(`${BASE_URL}/${id}`);
-  return response.data;
+  try {
+    const response = await axios.delete(`${BASE_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      // Server returned error with a message
+      throw new Error(error.response.data.message || "Failed to delete plant");
+    } else {
+      throw new Error("Network error. Please try again.");
+    }
+  }
 };

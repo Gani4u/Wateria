@@ -53,16 +53,20 @@ const SupplierFormModal = ({ show, onHide, onSubmit, supplier }) => {
               placeholder="Enter supplier name"
             />
           </Form.Group>
-          <Form.Group>
-            <Form.Label>Contact</Form.Label>
-            <Form.Control
-              type="text"
-              name="contact"
-              value={formData.contact}
-              onChange={handleChange}
-              required
-              placeholder="Enter phone number"
-            />
+          <Form.Group controlId="formContact" className="mt-3">
+            <Form.Label>Contact Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="contact"
+                value={formData.contact}
+                onChange={(e) => /^\d*$/.test(e.target.value) && setFormData({ ...formData, contact: e.target.value })}
+                placeholder="Enter contact number"
+                maxLength={10}
+                isInvalid={formData.contact && formData.contact.length !== 10}
+              />
+            <Form.Control.Feedback type="invalid">
+              Man enter 10 digit number😃
+            </Form.Control.Feedback>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>

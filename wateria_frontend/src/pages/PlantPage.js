@@ -8,13 +8,14 @@ import {
   updatePlant,
   deletePlant,
 } from "../api/PlantApi";
-import { Button, Spinner, Form } from "react-bootstrap";
+import { Button, Spinner, Form, Alert } from "react-bootstrap";
 
 const PlantPage = () => {
   const [plants, setPlants] = useState([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // error handler
   const [searchTerm, setSearchTerm] = useState("");
 
   const [openModal, setOpenModal] = useState(false);
@@ -24,25 +25,36 @@ const PlantPage = () => {
   const PAGE_SIZE = 10;
 
   useEffect(() => {
-    loadPlants(0, searchTerm);
-  }, []);
+    fetchPlants(0, searchTerm);
+    // ✅ fixed missing dependency warning
+  }, [searchTerm]);
 
-  const loadPlants = async (currentPage, query = "") => {
-    setLoading(true);
-    const data = await getPaginatedPlants(currentPage, PAGE_SIZE, "id", query);
-    if (currentPage === 0) {
-      setPlants(data.content);
-    } else {
-      setPlants((prev) => [...prev, ...data.content]);
+  // Centralized fetch with error handling
+  const fetchPlants = async (currentPage, query = "") => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await getPaginatedPlants(currentPage, PAGE_SIZE, "id", query);
+
+      if (currentPage === 0) {
+        setPlants(data.content || []);
+      } else {
+        setPlants((prev) => [...prev, ...(data.content || [])]);
+      }
+
+      setHasMore(currentPage + 1 < (data.totalPages || 0));
+    } catch (err) {
+      setError("Failed to load plants. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setHasMore(currentPage + 1 < data.totalPages);
-    setLoading(false);
   };
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    loadPlants(nextPage, searchTerm);
+    fetchPlants(nextPage, searchTerm);
   };
 
   const handleAdd = () => {
@@ -50,11 +62,9 @@ const PlantPage = () => {
     setOpenModal(true);
   };
 
-  const handleSearch = async (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
     setPage(0);
-    loadPlants(0, term);
   };
 
   const handleEdit = (plant) => {
@@ -63,21 +73,33 @@ const PlantPage = () => {
   };
 
   const handleDelete = async () => {
-    await deletePlant(confirmDelete.id);
-    setConfirmDelete({ open: false, id: null });
-    setPage(0);
-    loadPlants(0, searchTerm);
+    try {
+      setLoading(true);
+      await deletePlant(confirmDelete.id);
+      setConfirmDelete({ open: false, id: null });
+      fetchPlants(0, searchTerm);
+    } catch (err) {
+      setError("Failed to delete plant, may be record is linked somewhere check and delete that first.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (formData) => {
-    if (formData.id) {
-      await updatePlant(formData.id, formData);
-    } else {
-      await createPlant(formData);
+    try {
+      setLoading(true);
+      if (formData.id) {
+        await updatePlant(formData.id, formData);
+      } else {
+        await createPlant(formData);
+      }
+      setOpenModal(false);
+      fetchPlants(0, searchTerm);
+    } catch (err) {
+      setError("Failed to save plant. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setOpenModal(false);
-    setPage(0);
-    loadPlants(0, searchTerm);
   };
 
   return (
@@ -88,6 +110,18 @@ const PlantPage = () => {
           + Add Plant
         </Button>
       </div>
+
+      {/* ✅ Error alert with close (X button) */}
+      {error && (
+        <Alert
+          variant="danger"
+          dismissible
+          onClose={() => setError(null)}
+          className="mt-2"
+        >
+          {error}
+        </Alert>
+      )}
 
       <Form.Control
         type="text"
@@ -118,11 +152,12 @@ const PlantPage = () => {
       )}
 
       <PlantFormModal
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
+        show={openModal}
+        onHide={() => setOpenModal(false)}
         onSubmit={handleSubmit}
         plant={selectedPlant}
       />
+
       <ConfirmDialog
         open={confirmDelete.open}
         onConfirm={handleDelete}

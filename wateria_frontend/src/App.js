@@ -13,6 +13,7 @@ import InternallyUsedItemPage from "./pages/InternallyUsedItemPage";
 import Login from "./components/Login";
 import SessionExpiredModal from "./context/SessionExpiredModal";
 import ServerDown from "./context/ServerDown";
+import NotFoundPage from "./context/NotFoundPage";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -38,6 +39,7 @@ function App() {
         <Route path="/internal-used" element={<PrivateRoute><InternallyUsedItemPage /></PrivateRoute>} />
         <Route path="/session-expired" element={<SessionExpiredModal/>}/>
         <Route path="/server-down" element={<ServerDown />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

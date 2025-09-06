@@ -94,15 +94,20 @@ const BulkOrderFormModal = ({ show, onHide, onSubmit, order }) => {
           </Form.Group>
 
           {/* ✅ Contact Number */}
-          <Form.Group controlId="contactNumber" className="mb-3">
+          <Form.Group controlId="formContact" className="mt-3">
             <Form.Label>Contact Number</Form.Label>
-            <Form.Control
-              type="text"
-              name="contactNumber"
-              value={formData.contactNumber}
-              onChange={handleChange}
-              required
-            />
+              <Form.Control
+                type="text"
+                name="contactNumber"
+                value={formData.contactNumber}
+                onChange={(e) => /^\d*$/.test(e.target.value) && setFormData({ ...formData, contactNumber: e.target.value })}
+                placeholder="Enter contact number"
+                maxLength={10}
+                isInvalid={formData.contactNumber && formData.contactNumber.length !== 10}
+              />
+            <Form.Control.Feedback type="invalid">
+              Man enter 10 digit number😃
+            </Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group controlId="cansGiven" className="mb-3">

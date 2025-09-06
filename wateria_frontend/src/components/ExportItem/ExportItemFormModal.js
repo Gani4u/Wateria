@@ -82,15 +82,20 @@ const ExportItemFormModal = ({ show, onHide, onSubmit, exportItem, items }) => {
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Customer Contact</Form.Label>
-            <Form.Control
-              name="customerContact"
-              value={formData.customerContact}
-              onChange={handleChange}
-              required
-              placeholder="Enter contact number"
-            />
+          <Form.Group controlId="formContact" className="mt-3">
+            <Form.Label>Contact Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="customerContact"
+                value={formData.contactNumber}
+                onChange={(e) => /^\d*$/.test(e.target.value) && setFormData({ ...formData, contactNumber: e.target.value })}
+                placeholder="Enter contact number"
+                maxLength={10}
+                isInvalid={formData.contactNumber && formData.contactNumber.length !== 10}
+              />
+            <Form.Control.Feedback type="invalid">
+              Man enter 10 digit number😃
+            </Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">

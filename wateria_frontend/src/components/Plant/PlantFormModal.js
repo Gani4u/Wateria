@@ -1,72 +1,58 @@
 import React, { useEffect, useState } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
 
-const PlantFormModal = ({ isOpen, onClose, onSubmit, plant }) => {
-  const [formData, setFormData] = useState({ name: "", location: "" });
+const PlantFormModal = ({ show, onHide, onSubmit, plant }) => {
+  const [formData, setFormData] = useState({ id: null, name: "", location: "" });
 
   useEffect(() => {
     if (plant) {
-      setFormData({ id: plant.id, name: plant.name, location: plant.location });
+      setFormData({ id: plant.id || null, name: plant.name || "", location: plant.location || "" });
     } else {
-      setFormData({ name: "", location: "" });
+      setFormData({ id: null, name: "", location: "" });
     }
   }, [plant]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    await onSubmit(formData); // parent handles API
+    onHide();
   };
-
-  if (!isOpen) return null;
 
   return (
-    <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">{plant ? "Edit Plant" : "Add Plant"}</h5>
-              <button type="button" className="btn-close" onClick={onClose}></button>
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Plant Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="form-control"
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="form-control"
-                  required
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary">
-                Save
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+    <Modal
+      show={show}
+      onHide={onHide}
+      centered
+      backdrop="static"
+      enforceFocus={false}
+      restoreFocus={false}
+      style={{ zIndex: 1065 }}
+    >
+      <Form onSubmit={handleSubmit}>
+        <Modal.Header closeButton>
+          <Modal.Title>{formData.id ? "Edit Plant" : "Add Plant"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>Plant Name</Form.Label>
+            <Form.Control type="text" name="name" value={formData.name} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Location</Form.Label>
+            <Form.Control type="text" name="location" value={formData.location} onChange={handleChange} required />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onHide}>Cancel</Button>
+          <Button type="submit" variant="primary">Save</Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 };
 

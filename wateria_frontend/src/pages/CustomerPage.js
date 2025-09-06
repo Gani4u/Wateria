@@ -1,3 +1,4 @@
+// 📁 src/pages/CustomerPage.js
 import React, { useEffect, useState } from "react";
 import CustomerTable from "../components/Customer/CustomerTable";
 import CustomerFormModal from "../components/Customer/CustomerFormModal";
@@ -8,7 +9,7 @@ import {
   updateCustomer,
   deleteCustomer,
 } from "../api/CustomerApi";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form, Spinner, Alert } from "react-bootstrap";
 
 const CustomerPage = () => {
   const [customers, setCustomers] = useState([]);
@@ -16,6 +17,8 @@ const CustomerPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState(null);
+
   const [openModal, setOpenModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
@@ -28,17 +31,22 @@ const CustomerPage = () => {
 
   const loadCustomers = async (currentPage, query = "") => {
     setLoading(true);
-    const data = await getAllCustomers(currentPage, PAGE_SIZE, "id", query);
-    if (currentPage === 0) {
-      setCustomers(data.content);
-    } else {
-      setCustomers((prev) => [...prev, ...data.content]);
+    try {
+      const data = await getAllCustomers(currentPage, PAGE_SIZE, "id", query);
+      if (currentPage === 0) {
+        setCustomers(data.content);
+      } else {
+        setCustomers((prev) => [...prev, ...data.content]);
+      }
+      setHasMore(currentPage + 1 < data.totalPages);
+    } catch {
+      setError("Failed to load customers.");
+    } finally {
+      setLoading(false);
     }
-    setHasMore(currentPage + 1 < data.totalPages);
-    setLoading(false);
   };
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
     setPage(0);
@@ -56,21 +64,33 @@ const CustomerPage = () => {
   };
 
   const handleDelete = async () => {
-    await deleteCustomer(confirmDelete.id);
-    setConfirmDelete({ open: false, id: null });
-    loadCustomers(0, searchTerm);
-    setPage(0);
+    try {
+      await deleteCustomer(confirmDelete.id);
+      setConfirmDelete({ open: false, id: null });
+      loadCustomers(0, searchTerm);
+      setPage(0);
+    } catch (error) {
+      setError(
+        error.response?.data?.message ||
+          "Error deleting customer. They might be linked to invoices or orders."
+      );
+      setConfirmDelete({ open: false, id: null });
+    }
   };
 
   const handleSubmit = async (formData) => {
-    if (formData.id) {
-      await updateCustomer(formData.id, formData);
-    } else {
-      await createCustomer(formData);
+    try {
+      if (formData.id) {
+        await updateCustomer(formData.id, formData);
+      } else {
+        await createCustomer(formData);
+      }
+      setOpenModal(false);
+      loadCustomers(0, searchTerm);
+      setPage(0);
+    } catch {
+      setError("Error saving customer.");
     }
-    setOpenModal(false);
-    loadCustomers(0, searchTerm);
-    setPage(0);
   };
 
   const handleLoadMore = () => {
@@ -87,6 +107,12 @@ const CustomerPage = () => {
           + Add Customer
         </Button>
       </div>
+
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       <Form.Control
         type="text"

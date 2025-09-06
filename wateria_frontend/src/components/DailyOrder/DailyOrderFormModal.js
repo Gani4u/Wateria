@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
-import { getPaginatedPlants } from "../../api/PlantApi";
-import { getAllCustomers } from "../../api/CustomerApi";
+import { Modal, Button, Form, InputGroup } from "react-bootstrap";
+import { getPaginatedPlants, createPlant } from "../../api/PlantApi";
+import { getAllCustomers, createCustomer } from "../../api/CustomerApi";
+import PlantFormModal from "../Plant/PlantFormModal";
+import CustomerFormModal from "../Customer/CustomerFormModal";
 
-const DailyOrderFormModal = ({
-  show,
-  onHide,
-  onSubmit,
-  order,
-  readOnlyFields = [],
-}) => {
+const DailyOrderFormModal = ({ show, onHide, onSubmit, order, readOnlyFields = [] }) => {
   const [formData, setFormData] = useState({
     id: null,
     plantId: "",
@@ -26,7 +22,10 @@ const DailyOrderFormModal = ({
 
   const [plants, setPlants] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [showPlantModal, setShowPlantModal] = useState(false);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
 
+  // Reset form when editing or adding
   useEffect(() => {
     if (order) {
       setFormData(order);
@@ -47,172 +46,157 @@ const DailyOrderFormModal = ({
     }
   }, [order]);
 
+  // Load dropdown data
   useEffect(() => {
     getPaginatedPlants(0, 100).then((data) => setPlants(data.content));
-    getAllCustomers().then((data) => setCustomers(data.content || data));
+    getAllCustomers(0, 100).then((data) => setCustomers(data.content || data));
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const updatedForm = { ...formData, [name]: value };
+    const updated = { ...formData, [name]: value };
 
-    // Recalculate dependent fields
-    updatedForm.cansPending =
-      parseInt(updatedForm.cansGiven) - parseInt(updatedForm.cansReturned);
-    updatedForm.pendingAmount =
-      parseFloat(updatedForm.totalAmount) -
-      parseFloat(updatedForm.moneyReceived);
+    updated.cansPending = parseInt(updated.cansGiven || 0) - parseInt(updated.cansReturned || 0);
+    updated.pendingAmount = parseFloat(updated.totalAmount || 0) - parseFloat(updated.moneyReceived || 0);
 
-    setFormData(updatedForm);
+    setFormData(updated);
   };
 
   const handleSubmit = () => {
     onSubmit({
       ...formData,
-      // Ensure recalculated fields are correct
-      cansPending:
-        parseInt(formData.cansGiven) - parseInt(formData.cansReturned),
-      pendingAmount:
-        parseFloat(formData.totalAmount) - parseFloat(formData.moneyReceived),
+      cansPending: parseInt(formData.cansGiven || 0) - parseInt(formData.cansReturned || 0),
+      pendingAmount: parseFloat(formData.totalAmount || 0) - parseFloat(formData.moneyReceived || 0),
     });
   };
 
-  const isFieldReadOnly = (fieldName) => readOnlyFields.includes(fieldName);
+  const isReadOnly = (field) => readOnlyFields.includes(field);
 
   return (
-    <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {formData.id ? "Edit/Add-Up" : "Add"} Daily Order
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          {/* Plant Dropdown */}
-          <Form.Group className="mb-3">
-            <Form.Label>Plant</Form.Label>
-            <Form.Select
-              name="plantId"
-              value={formData.plantId}
-              onChange={handleChange}
-              required
-              disabled={isFieldReadOnly("plantId")}
-            >
-              <option value="">Select Plant</option>
-              {plants.map((plant) => (
-                <option key={plant.id} value={plant.id}>
-                  {plant.name}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+    <>
+      <Modal show={show} onHide={onHide} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{formData.id ? "Edit Daily Order" : "Add Daily Order"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {/* Plant */}
+            <Form.Group className="mb-3">
+              <Form.Label>Plant</Form.Label>
+              <InputGroup>
+                <Form.Select
+                  name="plantId"
+                  value={formData.plantId}
+                  onChange={handleChange}
+                  disabled={isReadOnly("plantId")}
+                  required
+                >
+                  <option value="">Select Plant</option>
+                  {plants.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Button variant="outline-primary" onClick={() => setShowPlantModal(true)}>
+                  +
+                </Button>
+              </InputGroup>
+            </Form.Group>
 
-          {/* Customer Dropdown */}
-          <Form.Group className="mb-3">
-            <Form.Label>Customer</Form.Label>
-            <Form.Select
-              name="customerId"
-              value={formData.customerId}
-              onChange={handleChange}
-              required
-              disabled={isFieldReadOnly("customerId")}
-            >
-              <option value="">Select Customer</option>
-              {Array.isArray(customers) &&
-                customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name} ({customer.contactNumber})
-                  </option>
-                ))}
-            </Form.Select>
-          </Form.Group>
+            {/* Customer */}
+            <Form.Group className="mb-3">
+              <Form.Label>Customer</Form.Label>
+              <InputGroup>
+                <Form.Select
+                  name="customerId"
+                  value={formData.customerId}
+                  onChange={handleChange}
+                  disabled={isReadOnly("customerId")}
+                  required
+                >
+                  <option value="">Select Customer</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.contactNumber})
+                    </option>
+                  ))}
+                </Form.Select>
+                <Button variant="outline-primary" onClick={() => setShowCustomerModal(true)}>
+                  +
+                </Button>
+              </InputGroup>
+            </Form.Group>
 
-          {/* Cans Given */}
-          <Form.Group className="mb-3">
-            <Form.Label>Cans Given</Form.Label>
-            <Form.Control
-              type="number"
-              name="cansGiven"
-              value={formData.cansGiven}
-              onChange={handleChange}
-            />
-          </Form.Group>
+            {/* Numbers */}
+            <Form.Group className="mb-3">
+              <Form.Label>Cans Given</Form.Label>
+              <Form.Control type="number" name="cansGiven" value={formData.cansGiven} onChange={handleChange} min="0" />
+            </Form.Group>
 
-          {/* Cans Returned */}
-          <Form.Group className="mb-3">
-            <Form.Label>Cans Returned</Form.Label>
-            <Form.Control
-              type="number"
-              name="cansReturned"
-              value={formData.cansReturned}
-              onChange={handleChange}
-            />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Cans Returned</Form.Label>
+              <Form.Control type="number" name="cansReturned" value={formData.cansReturned} onChange={handleChange} min="0" />
+            </Form.Group>
 
-          {/* Cans Pending (Calculated) */}
-          <Form.Group className="mb-3">
-            <Form.Label>Cans Pending</Form.Label>
-            <Form.Control
-              type="number"
-              readOnly
-              value={formData.cansPending}
-            />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Cans Pending</Form.Label>
+              <Form.Control type="number" value={formData.cansPending} readOnly plaintext />
+            </Form.Group>
 
-          {/* Total Amount */}
-          <Form.Group className="mb-3">
-            <Form.Label>Total Amount (₹)</Form.Label>
-            <Form.Control
-              type="number"
-              name="totalAmount"
-              value={formData.totalAmount}
-              onChange={handleChange}
-            />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Total Amount (₹)</Form.Label>
+              <Form.Control type="number" name="totalAmount" value={formData.totalAmount} onChange={handleChange} min="0" />
+            </Form.Group>
 
-          {/* Money Received */}
-          <Form.Group className="mb-3">
-            <Form.Label>Money Received (₹)</Form.Label>
-            <Form.Control
-              type="number"
-              name="moneyReceived"
-              value={formData.moneyReceived}
-              onChange={handleChange}
-            />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Money Received (₹)</Form.Label>
+              <Form.Control type="number" name="moneyReceived" value={formData.moneyReceived} onChange={handleChange} min="0" />
+            </Form.Group>
 
-          {/* Pending Amount (Calculated) */}
-          <Form.Group className="mb-3">
-            <Form.Label>Pending Amount (₹)</Form.Label>
-            <Form.Control
-              type="number"
-              readOnly
-              value={formData.pendingAmount}
-            />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Pending Amount (₹)</Form.Label>
+              <Form.Control type="number" value={formData.pendingAmount} readOnly plaintext />
+            </Form.Group>
 
-          {/* Note */}
-          <Form.Group className="mb-3">
-            <Form.Label>Note</Form.Label>
-            <Form.Control
-              type="text"
-              name="note"
-              value={formData.note}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Form>
-      </Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Note</Form.Label>
+              <Form.Control as="textarea" rows={2} name="note" value={formData.note} onChange={handleChange} />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onHide}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Save Order
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          Save
-        </Button>
-      </Modal.Footer>
-    </Modal>
+      {/* Plant Modal */}
+      <PlantFormModal
+        show={showPlantModal}
+        onHide={() => setShowPlantModal(false)}
+        onSubmit={async (newPlant) => {
+          const saved = await createPlant(newPlant);
+          setPlants((prev) => [...prev, saved]);
+          setFormData((prev) => ({ ...prev, plantId: saved.id }));
+        }}
+      />
+
+      {/* Customer Modal */}
+      <CustomerFormModal
+        show={showCustomerModal}
+        onHide={() => setShowCustomerModal(false)}
+        onSubmit={async (newCustomer) => {
+          const saved = await createCustomer(newCustomer);
+          setCustomers((prev) => [...prev, saved]);
+          setFormData((prev) => ({ ...prev, customerId: saved.id }));
+        }}
+      />
+    </>
   );
 };
 
